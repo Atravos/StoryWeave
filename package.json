@@ -1,0 +1,20 @@
+{
+  "name": "storyweave",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "server": "cd storyweave/server && npm run dev",
+    "client": "cd storyweave/client && npm start",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "seed": "cd storyweave/server && node seedPrompts.js",
+    "build": "cd storyweave/client && npm run build",
+    "install-all": "npm install && cd storyweave/server && npm install && cd ../../storyweave/client && npm install"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
