@@ -444,9 +444,14 @@ const StorySession = () => {
         }
       };
       
-      // Use correct URL with port 5001
       const storyRes = await axios.get(`http://localhost:5002/api/stories/${storyId}`, config);
       setStory(storyRes.data);
+      
+      // Check if story is already complete and redirect
+      if (storyRes.data.isComplete) {
+        navigate(`/stories/${storyId}`);
+        return;
+      }
       
       // Find active session for this story - use correct URL
       const sessionsRes = await axios.get('http://localhost:5002/api/stories/active', config);
@@ -455,7 +460,9 @@ const StorySession = () => {
       if (storySession) {
         setSession(storySession);
       } else {
-        setError('No active session found for this story');
+        // If no active session is found, consider that the story might be complete
+        navigate(`/stories/${storyId}`);
+        return;
       }
       
       setLoading(false);
@@ -491,6 +498,8 @@ const StorySession = () => {
         sessionId: session._id,
         content: contribution.trim()
       });
+      
+      setContribution('');
       
       // Reset typing status
       setIsTyping(false);
@@ -571,9 +580,13 @@ const StorySession = () => {
         )}
         
         <ContributionForm onSubmit={handleSubmit}>
-          {isYourTurn ? (
+          {isYourTurn && !story.isComplete ? (
             <TurnNotification isYourTurn={true}>
               It's your turn to contribute to the story!
+            </TurnNotification>
+          ) : story.isComplete ? (
+            <TurnNotification>
+              This story is now complete!
             </TurnNotification>
           ) : (
             <TurnNotification isYourTurn={false}>
@@ -604,7 +617,8 @@ const StorySession = () => {
             disabled={
               !isYourTurn || 
               !contribution.trim() || 
-              contribution.length > MAX_CONTRIBUTION_LENGTH
+              contribution.length > MAX_CONTRIBUTION_LENGTH ||
+              story.isComplete  // Add this condition
             }
           >
             Submit Contribution

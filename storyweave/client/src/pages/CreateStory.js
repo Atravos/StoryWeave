@@ -143,6 +143,7 @@ const PromptCategory = styled.div`
 `;
 
 const CreateStory = () => {
+  console.log("API URL from env:", process.env.REACT_APP_API_URL);
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('random');
   const [maxParticipants, setMaxParticipants] = useState(5);
@@ -162,7 +163,7 @@ const CreateStory = () => {
   const fetchRandomPrompt = async (selectedCategory) => {
     try {
       setLoading(true);
-      const res = await axios.get(`http://localhost:5002/api/prompts/random?category=${selectedCategory}`);
+      const res = await axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5002'}/api/prompts/random?category=${selectedCategory}`);
       setPrompt(res.data);
       setLoading(false);
     } catch (err) {
@@ -200,7 +201,7 @@ const CreateStory = () => {
         }
       };
 
-      const res = await axios.post('http://localhost:5002/api/stories', {
+      const res = await axios.post(`${process.env.REACT_APP_API_URL || 'http://localhost:5002'}/api/stories`, {
         title: title.trim(),
         promptId: prompt?._id,
         maxParticipants: parseInt(maxParticipants),

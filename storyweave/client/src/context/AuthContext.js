@@ -2,9 +2,11 @@
 import React, { createContext, useReducer, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
+console.log("API URL from env:", process.env.REACT_APP_API_URL);
+
 // Create axios instance with the correct base URL
 const api = axios.create({
-  baseURL: 'http://localhost:5002',
+  baseURL: 'http://localhost:5002',  // Hard-code it for now
   headers: {
     'Content-Type': 'application/json'
   }
@@ -125,21 +127,21 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Login user
-  const login = async (formData) => {
+  const login = async (formData, navigate) => {
     try {
       const res = await api.post('/api/auth/login', formData);
       console.log("Login successful:", res.data);
       
-      // Set token in localStorage immediately
+      // Set token in localStorage
       localStorage.setItem('token', res.data.token);
       
       // Set token in axios headers
       api.defaults.headers.common['x-auth-token'] = res.data.token;
       
-      // Get user data and dispatch login action
+      // Get user data
       const userData = await getUserData(res.data.token);
-      console.log("Got user data:", userData);
       
+      // Dispatch login action
       dispatch({
         type: 'LOGIN',
         payload: {
@@ -148,10 +150,10 @@ export const AuthProvider = ({ children }) => {
         }
       });
       
-      // Force loadUser to run after login
-      setTimeout(() => {
-        loadUser();
-      }, 100);
+      // Navigate to lobby immediately after successful login
+      if (navigate) {
+        navigate('/lobby');
+      }
       
     } catch (err) {
       console.error("Login error:", err);

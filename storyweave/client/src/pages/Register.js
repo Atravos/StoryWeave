@@ -93,14 +93,11 @@ const Register = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/lobby');
-    }
-    
+    // Only clear errors on unmount
     return () => {
       clearErrors();
     };
-  }, [isAuthenticated, navigate, clearErrors]);
+  }, [clearErrors]);
 
   const onChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -111,7 +108,7 @@ const Register = () => {
     }
   };
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
       
     // Validate password match
@@ -126,11 +123,19 @@ const Register = () => {
       return;
     }
       
-    register({
-      username,
-      email,
-      password
-    });
+    try {
+      // Wait for register to complete
+      await register({
+        username,
+        email,
+        password
+      });
+      
+      // Force navigation to lobby
+      window.location.href = '/lobby';
+    } catch (err) {
+      console.error('Registration error:', err);
+    }
   };
 
   return (
@@ -190,7 +195,10 @@ const Register = () => {
       {passwordError && <ErrorMessage>{passwordError}</ErrorMessage>}
       {error && <ErrorMessage>{error}</ErrorMessage>}
       <LoginLink>
-        Already have an account? <Link to="/login">Login</Link>
+        Already have an account? <a href="/login" onClick={(e) => {
+          e.preventDefault();
+          window.location.href = '/login';
+        }}>Login</a>
       </LoginLink>
     </RegisterContainer>
   );

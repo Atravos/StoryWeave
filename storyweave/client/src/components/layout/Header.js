@@ -62,6 +62,18 @@ const NavLink = styled(Link)`
   }
 `;
 
+const NavAnchor = styled.a`
+  color: #ddd;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s;
+  cursor: pointer;
+  
+  &:hover {
+    color: white;
+  }
+`;
+
 const Button = styled.button`
   background-color: transparent;
   color: #ddd;
@@ -107,23 +119,39 @@ const Username = styled.span`
 const Header = () => {
   const { isAuthenticated, user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
-
+  
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    window.location.href = '/login';  // Changed to force page reload
   };
-
+  
   const guestLinks = (
     <NavList>
       <NavItem>
-        <NavLink to="/login">Login</NavLink>
+        <NavAnchor 
+          href="/login" 
+          onClick={(e) => {
+            e.preventDefault();
+            window.location.href = '/login';
+          }}
+        >
+          Login
+        </NavAnchor>
       </NavItem>
       <NavItem>
-        <NavLink to="/register">Register</NavLink>
+        <NavAnchor 
+          href="/register" 
+          onClick={(e) => {
+            e.preventDefault();
+            window.location.href = '/register';
+          }}
+        >
+          Register
+        </NavAnchor>
       </NavItem>
     </NavList>
   );
-
+  
   const authLinks = (
     <>
       <NavList>
@@ -149,14 +177,27 @@ const Header = () => {
       )}
     </>
   );
-
+  
+  // Modified Logo component usage
+  const LogoComponent = () => (
+    <Logo 
+      to={isAuthenticated ? "/lobby" : "/"} 
+      onClick={(e) => {
+        if (!isAuthenticated) {
+          e.preventDefault();
+          window.location.href = '/';
+        }
+      }}
+    >
+      <LogoIcon>📝</LogoIcon>
+      StoryWeave
+    </Logo>
+  );
+  
   return (
     <HeaderContainer>
       <HeaderContent>
-        <Logo to={isAuthenticated ? "/lobby" : "/"}>
-          <LogoIcon>📝</LogoIcon>
-          StoryWeave
-        </Logo>
+        <LogoComponent />
         <Navigation>
           {isAuthenticated ? authLinks : guestLinks}
         </Navigation>

@@ -92,7 +92,7 @@ module.exports = function(io) {
       });
     });
 
-    // New contribution added
+    // check
     socket.on('new-contribution', async ({ sessionId, content }) => {
       try {
         const session = await Session.findById(sessionId);
@@ -102,13 +102,28 @@ module.exports = function(io) {
           return;
         }
 
+        const story = await Story.findById(session.story);
+        
+        // Add this check at the beginning
+        if (story.isComplete || story.currentTurn >= story.turnLimit) {
+          story.isComplete = true;
+          session.isActive = false;
+          await story.save();
+          await session.save();
+          
+          io.to(sessionId).emit('story-complete', {
+            storyId: story._id,
+            message: 'Story is now complete!'
+          });
+          
+          return;
+        }
+
         // Verify it's the user's turn
         if (session.currentTurnUserId.toString() !== socket.user.id) {
           socket.emit('error', { message: 'Not your turn' });
           return;
         }
-
-        const story = await Story.findById(session.story);
         
         // Add contribution
         const contribution = {
@@ -120,7 +135,7 @@ module.exports = function(io) {
         story.contributions.push(contribution);
         story.currentTurn += 1;
 
-        // Check if story is complete
+        // Check if story is complete after adding the contribution
         if (story.currentTurn >= story.turnLimit) {
           story.isComplete = true;
           session.isActive = false;

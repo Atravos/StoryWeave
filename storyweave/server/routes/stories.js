@@ -77,7 +77,45 @@ router.get('/active', auth, async (req, res) => {
   }
 });
 
-// Get a specific story by ID
+// Get all completed stories - MOVED BEFORE :id ROUTE
+router.get('/completed', auth, async (req, res) => {
+  try {
+    const stories = await Story.find({ isComplete: true })
+      .populate('creator', 'username avatar')
+      .populate('prompt', 'text category')
+      .sort({ updatedAt: -1 });
+
+    res.json(stories);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+});
+
+// Get all stories by current user
+router.get('/user/me', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id)
+      .populate({
+        path: 'stories',
+        populate: [
+          { path: 'creator', select: 'username avatar' },
+          { path: 'prompt', select: 'text category' }
+        ]
+      });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json(user.stories);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+});
+
+// Get a specific story by ID - MOVED AFTER SPECIFIC ROUTES
 router.get('/:id', auth, async (req, res) => {
   try {
     const story = await Story.findById(req.params.id)
@@ -220,44 +258,6 @@ router.post('/:id/contribute', auth, async (req, res) => {
       message: 'Contribution added successfully',
       isComplete: story.isComplete
     });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
-  }
-});
-
-// Get all completed stories
-router.get('/completed', auth, async (req, res) => {
-  try {
-    const stories = await Story.find({ isComplete: true })
-      .populate('creator', 'username avatar')
-      .populate('prompt', 'text category')
-      .sort({ updatedAt: -1 });
-
-    res.json(stories);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
-  }
-});
-
-// Get all stories by current user
-router.get('/user/me', auth, async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id)
-      .populate({
-        path: 'stories',
-        populate: [
-          { path: 'creator', select: 'username avatar' },
-          { path: 'prompt', select: 'text category' }
-        ]
-      });
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    res.json(user.stories);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');

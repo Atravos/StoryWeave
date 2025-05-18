@@ -242,7 +242,17 @@ const CompletedStories = () => {
   const fetchStories = async () => {
     try {
       setLoading(true);
-      const res = await axios.get('/api/stories/completed');
+      
+      // Add token to the request
+      const token = localStorage.getItem('token');
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token
+        }
+      };
+      
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/stories/completed`, config);
       
       // Backend filtering would be better, this is just for demonstration
       let filteredStories = [...res.data];

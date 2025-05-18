@@ -90,22 +90,31 @@ const Login = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/lobby');
-    }
-      
+    // Clear the effect when component unmounts
     return () => {
       clearErrors();
     };
-  }, [isAuthenticated, navigate, clearErrors]);
+  }, [clearErrors]);
 
   const onChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
-    login({ email, password });
+    
+    try {
+      // Wait for login to complete
+      await login({ email, password });
+      
+      // Force a navigation to /lobby
+      window.location.href = '/lobby';
+      
+      // Alternatively, if you prefer to use React Router navigation:
+      // navigate('/lobby', { replace: true });
+    } catch (err) {
+      console.error('Login error:', err);
+    }
   };
 
   return (
@@ -139,7 +148,10 @@ const Login = () => {
       </Form>
       {error && <ErrorMessage>{error}</ErrorMessage>}
       <RegisterLink>
-        Don't have an account? <Link to="/register">Sign Up</Link>
+        Don't have an account? <a href="/register" onClick={(e) => {
+          e.preventDefault();
+          window.location.href = '/register';
+        }}>Sign Up</a>
       </RegisterLink>
     </LoginContainer>
   );

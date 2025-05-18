@@ -230,7 +230,17 @@ const ViewStory = () => {
   const fetchStory = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`/api/stories/${id}`);
+      
+      // Add token to the request
+      const token = localStorage.getItem('token');
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token
+        }
+      };
+      
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/stories/${id}`, config);
       setStory(res.data);
       setLoading(false);
     } catch (err) {
