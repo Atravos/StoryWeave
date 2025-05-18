@@ -384,7 +384,10 @@ const StorySession = () => {
       
       socket.on('story-complete', ({ storyId, message }) => {
         alert(message);
-        navigate(`/stories/${storyId}`);
+        
+        setTimeout(() => {
+          window.location.href = `/stories/${storyId}`;
+        }, 100);
       });
       
       socket.on('error', ({ message }) => {
