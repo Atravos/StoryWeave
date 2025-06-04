@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import styled from 'styled-components';
 import axios from 'axios';
+import config from '../config/environment';
 
 const ViewStoryContainer = styled.div`
   max-width: 900px;
@@ -233,14 +234,14 @@ const ViewStory = () => {
       
       // Add token to the request
       const token = localStorage.getItem('token');
-      const config = {
+      const configHeaders = {
         headers: {
           'Content-Type': 'application/json',
           'x-auth-token': token
         }
       };
       
-      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/stories/${id}`, config);
+      const res = await axios.get(`${config.API_URL}/api/stories/${id}`, configHeaders);
       setStory(res.data);
       setLoading(false);
     } catch (err) {

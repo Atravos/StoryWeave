@@ -28,3 +28,4 @@ yarn-error.log*
 .env.production
 storyweave/server/.env
 storyweave/client/.env
+node_modules

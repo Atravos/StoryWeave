@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+import config from '../config/environment';
 
 const CreateStoryContainer = styled.div`
   max-width: 800px;
@@ -143,7 +144,6 @@ const PromptCategory = styled.div`
 `;
 
 const CreateStory = () => {
-  console.log("API URL from env:", process.env.REACT_APP_API_URL);
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('random');
   const [maxParticipants, setMaxParticipants] = useState(5);
@@ -163,7 +163,7 @@ const CreateStory = () => {
   const fetchRandomPrompt = async (selectedCategory) => {
     try {
       setLoading(true);
-      const res = await axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:5002'}/api/prompts/random?category=${selectedCategory}`);
+      const res = await axios.get(`${config.API_URL}/api/prompts/random?category=${selectedCategory}`);
       setPrompt(res.data);
       setLoading(false);
     } catch (err) {
@@ -194,19 +194,19 @@ const CreateStory = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const config = {
+      const configHeaders = {
         headers: {
           'Content-Type': 'application/json',
           'x-auth-token': token
         }
       };
 
-      const res = await axios.post(`${process.env.REACT_APP_API_URL || 'http://localhost:5002'}/api/stories`, {
+      const res = await axios.post(`${config.API_URL}/api/stories`, {
         title: title.trim(),
         promptId: prompt?._id,
         maxParticipants: parseInt(maxParticipants),
         turnLimit: parseInt(turnLimit)
-      }, config);
+      }, configHeaders);
       
       setLoading(false);
       

@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+import config from '../config/environment';
 
 const LobbyContainer = styled.div`
   max-width: 1200px;
@@ -191,13 +192,13 @@ const Lobby = () => {
   const fetchSessions = async () => {
     try {
       const token = localStorage.getItem('token');
-      const config = {
+      const configHeaders = {
         headers: {
           'Content-Type': 'application/json',
           'x-auth-token': token
         }
       };
-      const res = await axios.get('http://localhost:5002/api/stories/active', config);
+      const res = await axios.get(`${config.API_URL}/api/stories/active`, configHeaders);
       setSessions(res.data);
       setLoading(false);
     } catch (err) {
@@ -209,13 +210,13 @@ const Lobby = () => {
   const joinSession = async (sessionId, storyId) => {
     try {
       const token = localStorage.getItem('token');
-      const config = {
+      const configHeaders = {
         headers: {
           'Content-Type': 'application/json',
           'x-auth-token': token
         }
       };
-      await axios.post(`http://localhost:5002/api/stories/${storyId}/join`, {}, config);
+      await axios.post(`${config.API_URL}/api/stories/${storyId}/join`, {}, configHeaders);
       navigate(`/story/${storyId}`);
     } catch (err) {
       console.error('Error joining session:', err);

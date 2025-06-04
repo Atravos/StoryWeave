@@ -2,11 +2,13 @@
 import React, { createContext, useReducer, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
-console.log("API URL from env:", process.env.REACT_APP_API_URL);
+import config from '../config/environment';
+
+console.log("API URL from config:", config.API_URL);
 
 // Create axios instance with the correct base URL
 const api = axios.create({
-  baseURL: 'http://localhost:5002',  // Hard-code it for now
+  baseURL: config.API_URL,
   headers: {
     'Content-Type': 'application/json'
   }

@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { io } from 'socket.io-client';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+import config from '../config/environment';
 
 const StoryContainer = styled.div`
   max-width: 1200px;
@@ -300,7 +301,7 @@ const StorySession = () => {
     fetchStory();
     
     // Initialize socket connection with correct port
-    const newSocket = io('http://localhost:5002', {
+    const newSocket = io(config.SOCKET_URL, {
       auth: {
         token: localStorage.getItem('token')
       }
@@ -440,14 +441,14 @@ const StorySession = () => {
     try {
       // Get token for authentication
       const token = localStorage.getItem('token');
-      const config = {
+      const configHeaders = {
         headers: {
           'Content-Type': 'application/json',
           'x-auth-token': token
         }
       };
       
-      const storyRes = await axios.get(`http://localhost:5002/api/stories/${storyId}`, config);
+      const storyRes = await axios.get(`${config.API_URL}/api/stories/${storyId}`, configHeaders);
       setStory(storyRes.data);
       
       // Check if story is already complete and redirect
@@ -457,7 +458,7 @@ const StorySession = () => {
       }
       
       // Find active session for this story - use correct URL
-      const sessionsRes = await axios.get('http://localhost:5002/api/stories/active', config);
+      const sessionsRes = await axios.get(`${config.API_URL}/api/stories/active`, configHeaders);
       const storySession = sessionsRes.data.find(s => s.story._id === storyId);
       
       if (storySession) {
